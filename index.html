@@ -103,6 +103,16 @@ el.textContent=v>max?1:v<1?max:v;
 document.getElementById('local').oninput=e=>document.getElementById('nomL').textContent=e.target.value;
 document.getElementById('visitante').oninput=e=>document.getElementById('nomV').textContent=e.target.value;
 mostrar();
+  // SNAP SCOREBOARD - Conexion Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyDhDslP2d1XUFKM9yEj0SeA-5aNJKjaUs8",
+  authDomain: "snap-scoreboard.firebaseapp.com",
+  databaseURL: "https://snap-scoreboard-default-rtdb.firebaseio.com",
+  projectId: "snap-scoreboard",
+  storageBucket: "snap-scoreboard.firebasestorage.app",
+  messagingSenderId: "894028177928",
+  appId: "1:894028177928:web:c5e501acc379289bb9e7bd"
+};
 </script>
 </body>
 </html>
