@@ -144,6 +144,25 @@ const firebaseConfig = {
       alert("No se pudo iniciar sesión: " + error.message);
     }
   }
+  
+const partidoRef = database.ref("partidos/fod-fcq");
+
+function guardarMarcadorSNAP() {
+  if (!auth.currentUser) return;
+
+  partidoRef.update({
+    local: document.getElementById("local").value,
+    visitante: document.getElementById("visitante").value,
+    puntosLocal: Number(document.getElementById("ptsL").textContent),
+    puntosVisitante: Number(document.getElementById("ptsV").textContent),
+    cuarto: Number(document.getElementById("qtr").textContent),
+    tiempo: document.getElementById("time").textContent,
+    oportunidad: Number(document.getElementById("down").textContent)
+  }).catch(error => {
+    alert("Error al guardar: " + error.message);
+  });
+}
+
 
 </script>
 </body>
