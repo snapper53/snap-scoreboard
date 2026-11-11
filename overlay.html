@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SNAP Scoreboard</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700;900&display=swap');
+:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;background:transparent;color:white;font-family:'Roboto Condensed',Impact,'Arial Narrow',sans-serif}#board{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;gap:0;white-space:nowrap;font-weight:900;font-variant-numeric:tabular-nums;text-shadow:0 2px 3px #000,0 0 6px #000}.score{font-size:clamp(30px,15vw,180px);line-height:1;min-width:1.35em;text-align:center}.center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:2.2em}.clock{font-size:clamp(30px,13vw,160px);line-height:.95;letter-spacing:-.045em}.down{font-size:clamp(20px,6.4vw,85px);line-height:1.05;letter-spacing:.02em}.controls{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;gap:6px;background:#111e;padding:9px;border-radius:10px;max-width:98vw}.controls button{background:#27354a;color:white;border:1px solid #60738d;border-radius:6px;padding:8px 11px;font-weight:700}.controls button:active{background:#54759c}body.clean .controls{display:none}body.clean #board{height:100vh}.help{font-size:12px;align-self:center}
+</style>
+</head>
+<body>
+<div id="board"><div class="score" id="home">00</div><div class="center"><div class="clock" id="clock">12:00</div><div class="down" id="down">1ST</div></div><div class="score" id="away">00</div></div>
+<div class="controls" id="controls">
+<button onclick="changeScore('home',1)">Izq +</button><button onclick="changeScore('home',-1)">Izq −</button>
+<button onclick="toggleTimer()" id="play">INICIAR</button><button onclick="resetTimer()">12:00</button>
+<button onclick="nextDown()">DOWN +</button><button onclick="changeScore('away',1)">Der +</button><button onclick="changeScore('away',-1)">Der −</button>
+<button onclick="toggleClean()">OCULTAR CONTROLES</button><span class="help">Pulsa C para mostrar/ocultar</span>
+</div>
+<script>
+const KEY='snap-scoreboard-v1';
+let state={home:0,away:0,seconds:720,down:1,running:false,updated:Date.now()};
+try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved)state={...state,...saved,running:false}}catch(e){}
+function save(){localStorage.setItem(KEY,JSON.stringify(state))}
+function render(){document.getElementById('home').textContent=String(state.home).padStart(2,'0');document.getElementById('away').textContent=String(state.away).padStart(2,'0');document.getElementById('clock').textContent=`${Math.floor(state.seconds/60)}:${String(state.seconds%60).padStart(2,'0')}`;document.getElementById('down').textContent=['1ST','2ND','3RD','4TH'][state.down-1];document.getElementById('play').textContent=state.running?'PAUSAR':'INICIAR'}
+function changeScore(side,delta){state[side]=Math.max(0,Math.min(99,state[side]+delta));save();render()}
+function toggleTimer(){state.running=!state.running;state.updated=Date.now();save();render()}
+function resetTimer(){state.running=false;state.seconds=720;save();render()}
+function nextDown(){state.down=state.down%4+1;save();render()}
+function toggleClean(){document.body.classList.toggle('clean')}
+document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='c')toggleClean();if(e.code==='Space'){e.preventDefault();toggleTimer()}});
+setInterval(()=>{if(!state.running)return;const now=Date.now();const elapsed=Math.floor((now-state.updated)/1000);if(elapsed>0){state.seconds=Math.max(0,state.seconds-elapsed);state.updated+=elapsed*1000;if(state.seconds===0)state.running=false;save();render()}},200);
+render();
+</script>
+</body>
+</html>
