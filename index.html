@@ -99,11 +99,17 @@ function ajustar(n){segundos=Math.max(0,Math.min(3599,segundos+n));mostrar()}
 function puntos(e,n){
 let el=document.getElementById('pts'+e);
 el.textContent=Math.max(0,Number(el.textContent)+n);
+
+guardarMarcadorSNAP();
+
 }
 function cambiar(id,n,max){
 let el=document.getElementById(id);
 let v=Number(el.textContent)+n;
 el.textContent=v>max?1:v<1?max:v;
+
+guardarMarcadorSNAP();
+
 }
 document.getElementById('local').oninput=e=>document.getElementById('nomL').textContent=e.target.value;
 document.getElementById('visitante').oninput=e=>document.getElementById('nomV').textContent=e.target.value;
