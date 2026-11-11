@@ -1,35 +1,80 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
-<title>SNAP Scoreboard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SNAP Overlay PRISM</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@700;900&display=swap');
-:root{color-scheme:dark}*{box-sizing:border-box}html,body{margin:0;background:transparent;color:white;font-family:'Roboto Condensed',Impact,'Arial Narrow',sans-serif}#board{width:100%;height:100vh;display:flex;align-items:center;justify-content:center;gap:0;white-space:nowrap;font-weight:900;font-variant-numeric:tabular-nums;text-shadow:0 2px 3px #000,0 0 6px #000}.score{font-size:clamp(30px,15vw,180px);line-height:1;min-width:1.35em;text-align:center}.center{display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:2.2em}.clock{font-size:clamp(30px,13vw,160px);line-height:.95;letter-spacing:-.045em}.down{font-size:clamp(20px,6.4vw,85px);line-height:1.05;letter-spacing:.02em}.controls{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);display:flex;flex-wrap:wrap;justify-content:center;gap:6px;background:#111e;padding:9px;border-radius:10px;max-width:98vw}.controls button{background:#27354a;color:white;border:1px solid #60738d;border-radius:6px;padding:8px 11px;font-weight:700}.controls button:active{background:#54759c}body.clean .controls{display:none}body.clean #board{height:100vh}.help{font-size:12px;align-self:center}
+html,body{
+ margin:0;width:100%;height:100%;
+ background:transparent!important;
+ overflow:hidden;color:white;
+}
+.board{
+ position:absolute;left:50%;top:55%;
+ transform:translate(-50%,-50%);
+ display:flex;align-items:center;
+ gap:8px;white-space:nowrap;
+ font-family:Impact,"Arial Narrow",sans-serif;
+ font-weight:900;
+ text-shadow:0 2px 4px black;
+}
+.score{font-size:9vw;min-width:1.5em;text-align:center}
+.middle{text-align:center;line-height:1}
+.clock{font-size:8.5vw}
+.down{font-size:4vw;margin-top:5px}
 </style>
 </head>
 <body>
-<div id="board"><div class="score" id="home">00</div><div class="center"><div class="clock" id="clock">12:00</div><div class="down" id="down">1ST</div></div><div class="score" id="away">00</div></div>
-<div class="controls" id="controls">
-<button onclick="changeScore('home',1)">Izq +</button><button onclick="changeScore('home',-1)">Izq −</button>
-<button onclick="toggleTimer()" id="play">INICIAR</button><button onclick="resetTimer()">12:00</button>
-<button onclick="nextDown()">DOWN +</button><button onclick="changeScore('away',1)">Der +</button><button onclick="changeScore('away',-1)">Der −</button>
-<button onclick="toggleClean()">OCULTAR CONTROLES</button><span class="help">Pulsa C para mostrar/ocultar</span>
+<div class="board">
+ <span class="score" id="left">00</span>
+ <div class="middle">
+  <div class="clock" id="clock">12:00</div>
+  <div class="down" id="down">1ST</div>
+ </div>
+ <span class="score" id="right">00</span>
 </div>
-<script>
-const KEY='snap-scoreboard-v1';
-let state={home:0,away:0,seconds:720,down:1,running:false,updated:Date.now()};
-try{const saved=JSON.parse(localStorage.getItem(KEY));if(saved)state={...state,...saved,running:false}}catch(e){}
-function save(){localStorage.setItem(KEY,JSON.stringify(state))}
-function render(){document.getElementById('home').textContent=String(state.home).padStart(2,'0');document.getElementById('away').textContent=String(state.away).padStart(2,'0');document.getElementById('clock').textContent=`${Math.floor(state.seconds/60)}:${String(state.seconds%60).padStart(2,'0')}`;document.getElementById('down').textContent=['1ST','2ND','3RD','4TH'][state.down-1];document.getElementById('play').textContent=state.running?'PAUSAR':'INICIAR'}
-function changeScore(side,delta){state[side]=Math.max(0,Math.min(99,state[side]+delta));save();render()}
-function toggleTimer(){state.running=!state.running;state.updated=Date.now();save();render()}
-function resetTimer(){state.running=false;state.seconds=720;save();render()}
-function nextDown(){state.down=state.down%4+1;save();render()}
-function toggleClean(){document.body.classList.toggle('clean')}
-document.addEventListener('keydown',e=>{if(e.key.toLowerCase()==='c')toggleClean();if(e.code==='Space'){e.preventDefault();toggleTimer()}});
-setInterval(()=>{if(!state.running)return;const now=Date.now();const elapsed=Math.floor((now-state.updated)/1000);if(elapsed>0){state.seconds=Math.max(0,state.seconds-elapsed);state.updated+=elapsed*1000;if(state.seconds===0)state.running=false;save();render()}},200);
-render();
+<script type="module">
+import {initializeApp} from
+'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+import {getDatabase,ref,onValue} from
+'https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js';
+
+const app=initializeApp({
+ apiKey:"AIzaSyDhDslP2d1XUFKM9yEj0SeA-5aNJKjaUs8",
+ authDomain:"snap-scoreboard.firebaseapp.com",
+ databaseURL:"https://snap-scoreboard-default-rtdb.firebaseio.com",
+ projectId:"snap-scoreboard",
+ storageBucket:"snap-scoreboard.firebasestorage.app",
+ messagingSenderId:"894028177928",
+ appId:"1:894028177928:web:c5e501acc379289bb9e7bd"
+});
+const db=getDatabase(app);
+const params=new URLSearchParams(location.search);
+const path=params.get("path")||"partidos/partido1";
+const $=id=>document.getElementById(id);
+const pick=(s,keys,fallback)=>{
+ for(const k of keys)
+  if(s[k]!=null)return s[k];
+ return fallback;
+};
+onValue(ref(db,path),snapshot=>{
+ const s=snapshot.val()||{};
+ const home=pick(s,["home","local","left","izq"],0);
+ const away=pick(s,["away","visitante","right","der"],0);
+ $("left").textContent=String(home).padStart(2,"0");
+ $("right").textContent=String(away).padStart(2,"0");
+ const t=pick(s,["seconds","timeLeft","tiempo"],720);
+ const n=Math.max(0,Number(t)||0);
+ $("clock").textContent=
+ typeof t==="string"&&t.includes(":")?t:
+ String(Math.floor(n/60)).padStart(2,"0")+":"+
+ String(Math.floor(n%60)).padStart(2,"0");
+ const d=pick(s,["down","oportunidad"],1);
+ $("down").textContent=
+ ["","1ST","2ND","3RD","4TH"][Number(d)]||String(d);
+},console.error);
 </script>
 </body>
 </html>
