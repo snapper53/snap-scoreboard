@@ -1,1 +1,61 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>SNAP · Control</title><style>body{margin:0;background:#101827;color:white;font:600 18px system-ui;text-align:center;padding:22px 12px}h1{font-size:23px}.preview{font-size:40px;font-weight:900;margin:20px 0}.clock{font-size:50px}button{background:#293e59;border:1px solid #6985a9;border-radius:12px;color:white;font-size:18px;font-weight:700;padding:14px;margin:5px;min-width:100px}button:active{background:#486e9c}.group{margin:16px auto;max-width:420px}#status{font-size:14px;color:#b8c7db}input{display:block;margin:12px auto;padding:14px;border-radius:8px;font-size:17px;max-width:340px;width:85%}[hidden]{display:none!important}</style></head><body><h1>SNAP · PANEL DE CONTROL</h1><div id="status">Conectando…</div><section id="login"><h2>Acceso del operador</h2><form id="loginForm"><input id="email" type="email" placeholder="Correo electrónico" autocomplete="username" required><input id="password" type="password" placeholder="Contraseña" autocomplete="current-password" required><button type="submit">ENTRAR</button></form></section><section id="panel" hidden><div class="preview"><span id="left">00</span> <span id="clock" class="clock">12:00</span> <span id="right">00</span><div id="down">1ST</div></div><div class="group"><button data-action="left+">IZQ +</button><button data-action="left-">IZQ −</button><button data-action="right+">DER +</button><button data-action="right-">DER −</button></div><div class="group"><button data-action="toggle" id="toggle">INICIAR</button><button data-action="reset">REINICIAR 12:00</button></div><div class="group"><button data-action="down+">DOWN +</button><button data-action="down-">DOWN −</button></div><button id="logout">CERRAR SESIÓN</button></section><script type="module" src="./snap-sync.js"></script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SNAP · Control</title>
+<style>
+body{margin:0;background:#101827;color:white;font:600 18px system-ui;text-align:center;padding:22px 12px}
+h1{font-size:23px}
+.preview{font-size:40px;font-weight:900;margin:20px 0}
+.clock{font-size:50px}
+button{background:#293e59;border:1px solid #6985a9;border-radius:12px;color:white;font-size:18px;font-weight:700;padding:14px;margin:5px;min-width:100px}
+button:active{background:#486e9c}
+.group{margin:16px auto;max-width:420px}
+#status{font-size:14px;color:#b8c7db}
+input{display:block;margin:12px auto;padding:14px;border-radius:8px;font-size:17px;max-width:340px;width:85%}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<h1>SNAP · PANEL DE CONTROL</h1>
+<div id="status">Conectando…</div>
+<section id="login">
+<h2>Acceso del operador</h2>
+<form id="loginForm">
+<input id="email" type="email" placeholder="Correo electrónico" autocomplete="username" required>
+<input id="password" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+<button type="submit">ENTRAR</button>
+</form>
+</section>
+<section id="panel" hidden>
+<div class="preview">
+<span id="left">00</span>
+<span id="clock" class="clock">12:00</span>
+<span id="right">00</span>
+<div id="quarter">QTR 1</div>
+<div id="down">1ST</div>
+</div>
+<div class="group">
+<button data-action="left+">IZQ +</button>
+<button data-action="left-">IZQ −</button>
+<button data-action="right+">DER +</button>
+<button data-action="right-">DER −</button>
+</div>
+<div class="group">
+<button data-action="toggle" id="toggle">INICIAR</button>
+<button data-action="reset">REINICIAR 12:00</button>
+</div>
+<div class="group">
+<button data-action="quarter+">QTR +</button>
+<button data-action="quarter-">QTR −</button>
+</div>
+<div class="group">
+<button data-action="down+">DOWN +</button>
+<button data-action="down-">DOWN −</button>
+</div>
+<button id="logout">CERRAR SESIÓN</button>
+</section>
+<script type="module" src="./snap-sync.js"></script>
+</body>
+</html>
