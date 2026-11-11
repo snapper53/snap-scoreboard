@@ -122,6 +122,24 @@ const firebaseConfig = {
   const app = firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const database = firebase.database();
+
+  // SNAP SCOREBOARD - Acceso del operador
+
+  async function iniciarSesionSNAP() {
+    const correo = prompt("Correo del operador:");
+    if (!correo) return;
+
+    const clave = prompt("Contraseña:");
+    if (clave === null) return;
+
+    try {
+      await auth.signInWithEmailAndPassword(correo, clave);
+      alert("Operador conectado a Firebase");
+    } catch (error) {
+      alert("No se pudo iniciar sesión: " + error.message);
+    }
+  }
+
 </script>
 </body>
 </html>
