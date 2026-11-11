@@ -1,1 +1,109 @@
 
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SNAP SCOREBOARD</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#07101d;color:white;font-family:Arial,sans-serif;padding:18px}
+h1{font-size:30px}
+.panel{background:#14233a;border:1px solid #426ba2;border-radius:15px;padding:18px;margin:15px 0}
+label{display:block;margin:12px 0 5px}
+input{width:100%;padding:12px;border-radius:8px;border:1px solid #7191bd;background:#091729;color:white;font-size:18px}
+button{background:#23518c;color:white;border:0;border-radius:9px;padding:13px;margin:5px;font-size:17px}
+.controls{display:flex;flex-wrap:wrap;justify-content:center}
+.score{display:flex;align-items:center;justify-content:space-around;background:#05080e;border:2px solid #528dd6;border-radius:12px;padding:15px;text-align:center}
+.score strong{font-size:42px}
+small{color:#a8bad5}
+</style>
+</head>
+<body>
+<h1>🏈 SNAP SCOREBOARD</h1>
+<p>Panel de control del operador</p>
+<div class="panel">
+<label>Equipo local</label>
+<input id="local" value="FOD">
+<label>Equipo visitante</label>
+<input id="visitante" value="FCQ">
+</div>
+<div class="score">
+<div><span id="nomL">FOD</span><br><strong id="ptsL">0</strong></div>
+<div><small>QTR</small><br><strong id="qtr">1</strong></div>
+<div><small>TIME</small><br><strong id="time">12:00</strong></div>
+<div><small>DOWN</small><br><strong id="down">1</strong></div>
+<div><span id="nomV">FCQ</span><br><strong id="ptsV">0</strong></div>
+</div>
+<div class="panel">
+<h3>Marcador local</h3>
+<div class="controls">
+<button onclick="puntos('L',6)">+6 TD</button>
+<button onclick="puntos('L',1)">+1</button>
+<button onclick="puntos('L',2)">+2</button>
+<button onclick="puntos('L',3)">+3 FG</button>
+<button onclick="puntos('L',-1)">-1</button>
+</div>
+<h3>Marcador visitante</h3>
+<div class="controls">
+<button onclick="puntos('V',6)">+6 TD</button>
+<button onclick="puntos('V',1)">+1</button>
+<button onclick="puntos('V',2)">+2</button>
+<button onclick="puntos('V',3)">+3 FG</button>
+<button onclick="puntos('V',-1)">-1</button>
+</div>
+</div>
+<div class="panel">
+<h3>Reloj de partido</h3>
+<div class="controls">
+<button onclick="iniciar()">Iniciar</button>
+<button onclick="detener()">Pausar</button>
+<button onclick="reiniciar()">12:00</button>
+<button onclick="ajustar(10)">+10 s</button>
+<button onclick="ajustar(-10)">-10 s</button>
+</div>
+<h3>Cuarto y oportunidad</h3>
+<div class="controls">
+<button onclick="cambiar('qtr',1,4)">QTR +</button>
+<button onclick="cambiar('qtr',-1,4)">QTR -</button>
+<button onclick="cambiar('down',1,4)">DOWN +</button>
+<button onclick="cambiar('down',-1,4)">DOWN -</button>
+</div>
+</div>
+<script>
+let segundos=720;
+let intervalo=null;
+function mostrar(){
+let m=Math.floor(segundos/60);
+let s=segundos%60;
+document.getElementById('time').textContent=m+':'+String(s).padStart(2,'0');
+}
+function iniciar(){
+if(intervalo)return;
+intervalo=setInterval(()=>{
+if(segundos>0){segundos--;mostrar()}
+else detener();
+},1000);
+}
+function detener(){
+clearInterval(intervalo);
+intervalo=null;
+}
+function reiniciar(){detener();segundos=720;mostrar()}
+function ajustar(n){segundos=Math.max(0,Math.min(3599,segundos+n));mostrar()}
+function puntos(e,n){
+let el=document.getElementById('pts'+e);
+el.textContent=Math.max(0,Number(el.textContent)+n);
+}
+function cambiar(id,n,max){
+let el=document.getElementById(id);
+let v=Number(el.textContent)+n;
+el.textContent=v>max?1:v<1?max:v;
+}
+document.getElementById('local').oninput=e=>document.getElementById('nomL').textContent=e.target.value;
+document.getElementById('visitante').oninput=e=>document.getElementById('nomV').textContent=e.target.value;
+mostrar();
+</script>
+</body>
+</html>
+
