@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SNAP · PREPA 2 vs EIAO · PRISM</title>
+<style>
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:transparent!important}
+#board{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(100vw,calc(100vh * 2.385));aspect-ratio:1937/812;background:url('./plantilla-prepa2-eiao.PNG') center/contain no-repeat;font-family:Impact,'Arial Narrow',sans-serif;font-weight:900;font-style:italic;color:white;text-shadow:2px 3px 2px #111;container-type:inline-size}
+.field{position:absolute;display:flex;align-items:center;justify-content:center;white-space:nowrap;line-height:1}
+#left{left:22.6%;top:42.8%;width:11.4%;height:19.8%;font-size:clamp(12px,8.8cqw,170px)}
+#right{left:65.1%;top:42.8%;width:11.6%;height:19.8%;font-size:clamp(12px,8.8cqw,170px)}
+#quarter{left:36.1%;top:43.5%;width:5%;height:18.5%;color:#ffe500;font-size:clamp(12px,7.6cqw,148px)}
+#clock{left:42.8%;top:43.8%;width:13.2%;height:18.5%;font-size:clamp(12px,6.2cqw,120px);letter-spacing:-.04em}
+#down{left:58.5%;top:43.5%;width:5%;height:18.5%;color:#ffe500;font-size:clamp(12px,7.6cqw,148px)}
+</style>
+</head>
+<body>
+<div id="board"><div id="left" class="field">00</div><div id="quarter" class="field">1</div><div id="clock" class="field">12:00</div><div id="down" class="field">1</div><div id="right" class="field">00</div></div>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+import {getDatabase,ref,onValue} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+import {config} from './snap-universal-data.js';
+const app=initializeApp(config),db=getDatabase(app),$=id=>document.getElementById(id);
+let state={left:0,right:0,down:1,quarter:1,remaining:720000,running:false,endAt:0};
+function draw(){
+ $('left').textContent=String(state.left||0).padStart(2,'0');
+ $('right').textContent=String(state.right||0).padStart(2,'0');
+ $('quarter').textContent=String(state.quarter||1);
+ $('down').textContent=String(state.down||1);
+ const ms=state.running?Math.max(0,Number(state.endAt)-Date.now()):Math.max(0,Number(state.remaining)||0);
+ const sec=Math.ceil(ms/1000);
+ $('clock').textContent=String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+}
+onValue(ref(db,'partidos/universal'),snap=>{state={...state,...(snap.val()||{})};draw()},console.error);
+setInterval(draw,200);
+</script>
+</body>
+</html>
