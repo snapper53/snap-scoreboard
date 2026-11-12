@@ -2,7 +2,7 @@
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';import {getDatabase,ref,onValue,set} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js';import {config,names,matches,initial,fmt} from './snap-universal-data.js';const app=initializeApp(config),db=getDatabase(app),auth=getAuth(app),node=ref(db,'partidos/universal'),$=id=>document.getElementById(id);let state={...initial},loaded=false,authorized=false;const remain=()=>Math.max(0,state.running?state.endAt-Date.now():state.remaining);matches.forEach((m,i)=>{let o=document.createElement('option');o.value=i;o.textContent=`${m.fecha} ${m.hora} · ${names[m.local]} vs ${names[m.visitante]}`;$('match').append(o)});
 const logos = {
   prepa2: "IMG_7670.jpeg",
-  eiao: "IMG_7877.png",
+  eiao: "1C543363-3ACD-41D8-AC2B-B91AD3D4CF3D.png",
   prepa23: "IMG_7881.jpeg",
   cideb: "IMG_8380.png"
 };
