@@ -34,4 +34,4 @@ const config={apiKey:'AIzaSyDhDslP2d1XUFKM9yEj0SeA-5aNJKjaUs8',authDomain:'snap-
     "visitante": "cideb",
     "etapa": "SEMIFINAL"
   }
-];const initial={left:0,right:0,down:1,quarter:1,remaining:720000,running:false,endAt:0,match:0};const fmt=ms=>{let s=Math.ceil(Math.max(0,ms)/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};
+];const initial={left:0,right:0,down:1,quarter:1,remaining:720000,running:false,endAt:0,match:0};const fmt=ms=>{let s=Math.ceil(Math.max(0,ms)/1000);return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')};export {config,names,matches,initial,fmt};
