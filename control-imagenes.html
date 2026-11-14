@@ -8,16 +8,16 @@
 <style>
 *{box-sizing:border-box}
 body{margin:0;background:#101827;color:white;font-family:Arial,sans-serif;padding:18px}
-h1{font-size:24px;margin:0 0 6px}
-p{color:#b9c7dc;font-size:14px}
 .panel{max-width:650px;margin:auto}
+h1{font-size:24px}
+p{color:#b9c7dc}
 select,button{width:100%;padding:15px;border:0;border-radius:10px;font-size:17px;margin-top:12px}
-select{background:#fff;color:#111}
+select{background:white;color:#111}
 button{font-weight:bold;background:#f4c430;color:#111}
 .hide{background:#c72c35;color:white}
-.preview{margin-top:18px;background:#26354a;border-radius:12px;padding:12px;text-align:center}
+.preview{margin-top:18px;background:#26354a;border-radius:12px;padding:12px;text-align:center;min-height:90px}
 .preview img{max-width:100%;max-height:250px;object-fit:contain}
-#status{margin-top:14px;color:#b9c7dc}
+#status{margin-top:14px;overflow-wrap:anywhere;line-height:1.5}
 </style>
 </head>
 <body>
@@ -26,7 +26,6 @@ button{font-weight:bold;background:#f4c430;color:#111}
 <p>Selecciona una imagen para mostrarla en PRISM.</p>
 
 <select id="images">
-<option value="">Seleccionar imagen</option>
 <option value="06137D7C-8C2F-4E12-9FE7-A009EB7A8062.png">4.º Cuarto</option>
 </select>
 
@@ -36,55 +35,93 @@ button{font-weight:bold;background:#f4c430;color:#111}
 
 <button id="show">MOSTRAR EN PRISM</button>
 <button id="hide" class="hide">OCULTAR IMAGEN</button>
-<div id="status">Conectando con Firebase...</div>
+
+<div id="status">Iniciando conexión...</div>
 </div>
 
 <script type="module">
-import {initializeApp} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
-import {getDatabase,ref,set,onValue} from 'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
-import {config} from './snap-universal-data.js';
-
-const app=initializeApp(config);
-const db=getDatabase(app);
-const base='./';
-const channel=ref(db,'graficos/imagen-superior');
+const status=document.getElementById('status');
 const images=document.getElementById('images');
 const preview=document.getElementById('preview');
-const status=document.getElementById('status');
 
-images.addEventListener('change',()=>{
- preview.removeAttribute('src');
- if(images.value)preview.src=base+encodeURIComponent(images.value);
+function message(t){
+ status.textContent=t;
+}
+
+function updatePreview(){
+ preview.src=new URL(
+  encodeURIComponent(images.value),
+  location.href
+ ).href;
+}
+
+images.addEventListener('change',updatePreview);
+preview.onerror=()=>message('ERROR: No se pudo cargar la imagen.');
+updatePreview();
+
+window.addEventListener('error',e=>{
+ message('ERROR JavaScript: '+e.message);
 });
 
-document.getElementById('show').onclick=async()=>{
- if(!images.value){
-  alert('Selecciona una imagen');
-  return;
- }
- try{
-  await set(channel,{visible:true,file:images.value});
-  status.textContent='Imagen enviada a PRISM';
- }catch(e){
-  status.textContent='Error: '+e.message;
- }
-};
-
-document.getElementById('hide').onclick=async()=>{
- try{
-  await set(channel,{visible:false,file:images.value||''});
-  status.textContent='Imagen oculta';
- }catch(e){
-  status.textContent='Error: '+e.message;
- }
-};
-
-onValue(channel,snap=>{
- const data=snap.val();
- if(data)status.textContent=data.visible
-  ?'Imagen activa: '+data.file
-  :'Imagen oculta';
+window.addEventListener('unhandledrejection',e=>{
+ message('ERROR: '+String(e.reason));
 });
+
+try{
+ const [{initializeApp},{getDatabase,ref,set,onValue}]=
+ await Promise.all([
+  import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js'),
+  import('https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js')
+ ]);
+
+ message('Cargando configuración...');
+
+ const {config}=await import('./snap-universal-data.js?v=3');
+
+ const app=initializeApp(config);
+ const db=getDatabase(app);
+ const channel=ref(db,'graficos/imagen-superior');
+
+ message('Esperando respuesta de Firebase...');
+
+ onValue(channel,snap=>{
+  const data=snap.val();
+  message(data?.visible
+   ?'CONECTADO · Imagen activa: '+data.file
+   :'CONECTADO · Imagen oculta');
+ },error=>{
+  message('ERROR FIREBASE: '+error.code+' · '+error.message);
+ });
+
+ document.getElementById('show').onclick=async()=>{
+  try{
+   message('Enviando imagen...');
+   await set(channel,{
+    visible:true,
+    file:images.value
+   });
+   message('Imagen enviada correctamente');
+  }catch(e){
+   message('ERROR AL MOSTRAR: '+e.code+' · '+e.message);
+  }
+ };
+
+ document.getElementById('hide').onclick=async()=>{
+  try{
+   message('Ocultando imagen...');
+   await set(channel,{
+    visible:false,
+    file:images.value
+   });
+   message('Imagen oculta correctamente');
+  }catch(e){
+   message('ERROR AL OCULTAR: '+e.code+' · '+e.message);
+  }
+ };
+
+}catch(e){
+ message('ERROR DE INICIO: '+e.message);
+}
 </script>
 </body>
 </html>
