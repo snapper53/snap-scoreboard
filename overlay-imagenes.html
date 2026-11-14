@@ -1,0 +1,74 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SNAP · Overlay de imágenes</title>
+<style>
+html,body{
+ margin:0;
+ width:100%;
+ height:100%;
+ overflow:hidden;
+ background:transparent!important;
+}
+#imagen{
+ position:absolute;
+ top:2%;
+ left:50%;
+ transform:translateX(-50%);
+ max-width:90%;
+ max-height:38%;
+ width:auto;
+ height:auto;
+ object-fit:contain;
+ display:none;
+}
+</style>
+</head>
+<body>
+<img id="imagen" alt="Gráfico SNAP">
+
+<script type="module">
+import {initializeApp} from
+'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+
+import {getDatabase,ref,onValue} from
+'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+import {config} from './snap-universal-data.js';
+
+const app=initializeApp(config);
+const db=getDatabase(app);
+const imagen=document.getElementById('imagen');
+
+onValue(ref(db,'graficos/imagen-superior'),snap=>{
+ const data=snap.val();
+
+ if(!data || !data.visible || !data.file){
+  imagen.style.display='none';
+  imagen.removeAttribute('src');
+  return;
+ }
+
+ imagen.onload=()=>{
+  imagen.style.display='block';
+ };
+
+ imagen.onerror=()=>{
+  imagen.style.display='none';
+ };
+
+ const url=new URL(data.file,location.href);
+
+ if(url.origin!==location.origin){
+  imagen.style.display='none';
+  return;
+ }
+
+ imagen.src=url.href;
+});
+</script>
+</body>
+</html>
