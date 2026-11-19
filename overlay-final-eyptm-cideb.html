@@ -1,0 +1,164 @@
+
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SNAP | FINAL EYPTM VS CIDEB</title>
+
+<style>
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:transparent!important;
+}
+
+#board{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:min(100vw,calc(100vh * 16 / 9));
+  aspect-ratio:16/9;
+  background:
+    url('./0C71C63B-5F99-4478-968E-5B52F0AB988A.png')
+    center/contain no-repeat;
+  font-family:Impact,'Arial Narrow',sans-serif;
+  font-weight:900;
+  color:white;
+  text-shadow:2px 3px 3px #000;
+  container-type:inline-size;
+}
+
+.field{
+  position:absolute;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  white-space:nowrap;
+  line-height:1;
+}
+
+#left{
+  left:23%;
+  top:65%;
+  width:14%;
+  height:15%;
+  font-size:6cqw;
+}
+
+#quarter{
+  left:38%;
+  top:67%;
+  width:6%;
+  height:13%;
+  color:#ffe500;
+  font-size:4cqw;
+}
+
+#clock{
+  left:44%;
+  top:67%;
+  width:12%;
+  height:13%;
+  font-size:4cqw;
+}
+
+#down{
+  left:57%;
+  top:67%;
+  width:6%;
+  height:13%;
+  color:#ffe500;
+  font-size:4cqw;
+}
+
+#right{
+  left:64%;
+  top:65%;
+  width:14%;
+  height:15%;
+  font-size:6cqw;
+}
+</style>
+</head>
+
+<body>
+
+<div id="board">
+  <div id="left" class="field">00</div>
+  <div id="quarter" class="field">1</div>
+  <div id="clock" class="field">12:00</div>
+  <div id="down" class="field">1</div>
+  <div id="right" class="field">00</div>
+</div>
+
+<script type="module">
+
+import {initializeApp} from
+'https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js';
+
+import {getDatabase,ref,onValue} from
+'https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js';
+
+const config={
+  apiKey:'AIzaSyDhDslP2d1XUFKM9yEj0SeA-5aNJKjaUs8',
+  authDomain:'snap-scoreboard.firebaseapp.com',
+  databaseURL:'https://snap-scoreboard-default-rtdb.firebaseio.com',
+  projectId:'snap-scoreboard',
+  appId:'1:894028177928:web:c5e501acc379289bb9e7bd'
+};
+
+const app=initializeApp(config);
+const db=getDatabase(app);
+const $=id=>document.getElementById(id);
+
+let state={
+  left:0,
+  right:0,
+  quarter:1,
+  down:1,
+  remaining:720000,
+  running:false,
+  endAt:0
+};
+
+function draw(){
+
+  $('left').textContent=
+    String(state.left??0).padStart(2,'0');
+
+  $('right').textContent=
+    String(state.right??0).padStart(2,'0');
+
+  $('quarter').textContent=state.quarter??1;
+  $('down').textContent=state.down??1;
+
+  const ms=state.running
+    ?Math.max(0,Number(state.endAt)-Date.now())
+    :Math.max(0,Number(state.remaining)||0);
+
+  const sec=Math.ceil(ms/1000);
+
+  $('clock').textContent=
+    String(Math.floor(sec/60)).padStart(2,'0')
+    +':'+String(sec%60).padStart(2,'0');
+}
+
+onValue(
+  ref(db,'partidos/universal'),
+  snap=>{
+    state={...state,...(snap.val()||{})};
+    draw();
+  },
+  error=>console.error('Firebase:',error)
+);
+
+setInterval(draw,200);
+draw();
+
+</script>
+</body>
+</html>
